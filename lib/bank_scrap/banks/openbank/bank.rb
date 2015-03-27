@@ -187,7 +187,7 @@ module BankScrap
 
       # Build an BankScrap::Banks::Openbank::Account object from API data
       def build_account(data)
-        Openbank::Account.new(
+        Account.new(
           bank: self,
           id: value_at_xpath(data, 'comunes/contratoID/NUMERO_DE_CONTRATO'),
           name: value_at_xpath(data, 'comunes/descContrato'),
