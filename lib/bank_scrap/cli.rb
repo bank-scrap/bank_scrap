@@ -1,5 +1,6 @@
 require 'thor'
 require 'active_support/core_ext/string'
+require 'csv'
 
 module BankScrap
   class Cli < Thor
@@ -31,8 +32,8 @@ module BankScrap
     shared_options
     def transactions(bank, iban = nil)
       assign_shared_options
-    
-      begin 
+
+      begin
         start_date = @extra_args.has_key?('from') ? Date.strptime(@extra_args['from'],'%d-%m-%Y') : nil
         end_date = @extra_args.has_key?('to') ? Date.strptime(@extra_args['to'],'%d-%m-%Y') : nil
       rescue ArgumentError
@@ -54,14 +55,19 @@ module BankScrap
         transactions = account.transactions
       end
 
-      say "Transactions for: #{account.description} (#{account.iban})", :cyan
-      
-      transactions.each do |transaction|
-        say transaction.to_s, (transaction.amount > Money.new(0) ? :green : :red)
+      if (@extra_args.has_key?('format'))
+        export_to_file(transactions)
+      else
+        say "Transactions for: #{account.description} (#{account.iban})", :cyan
+
+        transactions.each do |transaction|
+          say transaction.to_s, (transaction.amount > Money.new(0) ? :green : :red)
+        end
       end
+
     end
 
-    private 
+    private
 
     def assign_shared_options
       @user       = options[:user]
@@ -72,15 +78,37 @@ module BankScrap
     end
 
     def initialize_client_for(bank_name)
-      bank_class = find_bank_class_for(bank_name)      
+      bank_class = find_bank_class_for(bank_name)
       @client = bank_class.new(@user, @password, log: @log, debug: @debug, extra_args: @extra_args)
     end
-    
+
     def find_bank_class_for(bank_name)
       Object.const_get("BankScrap::" + bank_name.classify)
     rescue NameError
       raise ArgumentError.new('Invalid bank name')
     end
 
+    def export_to_file(transactions)
+      current_date = Date.today.strftime('%d%m%Y')
+
+      case @extra_args['format'].downcase
+      when 'csv'
+        say "Storing transactions on #{output_path}/transactions_#{current_date}.csv"
+
+        CSV.open("#{output_path}/transactions_#{current_date}.csv", "wb") do |csv|
+          csv << ["Date", "Description", "Amount"]
+          transactions.each do |transaction|
+            csv << transaction.to_a
+          end
+        end
+      else
+        say "Sorry, file format not supported.", :red
+        exit
+      end
+    end
+
+    def output_path
+      Dir.pwd
+    end
   end
 end
