@@ -15,7 +15,7 @@ module BankScrap
       option :extra, type: :hash, default: {}
     end
 
-    desc "balance BANK", "get accounts' balance"
+    desc 'balance BANK', "get accounts' balance"
     shared_options
     def balance(bank)
       assign_shared_options
@@ -27,12 +27,12 @@ module BankScrap
       end
     end
 
-    desc "transactions BANK", "get account's transactions"
+    desc 'transactions BANK', "get account's transactions"
     shared_options
     def transactions(bank, iban = nil)
       assign_shared_options
-
-      begin
+    
+      begin 
         start_date = @extra_args.has_key?('from') ? Date.strptime(@extra_args['from'],'%d-%m-%Y') : nil
         end_date = @extra_args.has_key?('to') ? Date.strptime(@extra_args['to'],'%d-%m-%Y') : nil
       rescue ArgumentError
@@ -64,10 +64,9 @@ module BankScrap
           say transaction.to_s, (transaction.amount > Money.new(0) ? :green : :red)
         end
       end
-
     end
 
-    private
+    private 
 
     def assign_shared_options
       @user       = options[:user]
@@ -83,7 +82,7 @@ module BankScrap
     end
 
     def find_bank_class_for(bank_name)
-      Object.const_get("BankScrap::" + bank_name.classify)
+      Object.const_get('BankScrap::' + bank_name.classify)
     rescue NameError
       raise ArgumentError.new('Invalid bank name')
     end
@@ -96,6 +95,5 @@ module BankScrap
           exit
       end
     end
-
   end
 end
