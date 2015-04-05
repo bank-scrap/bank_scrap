@@ -1,6 +1,5 @@
 require 'thor'
 require 'active_support/core_ext/string'
-require 'csv'
 
 module BankScrap
   class Cli < Thor
@@ -55,8 +54,9 @@ module BankScrap
         transactions = account.transactions
       end
 
-      if (@extra_args.has_key?('format'))
-        export_to_file(transactions)
+      if (@extra_args.has_key?('export_to'))
+        exporter = get_exporter
+        exporter.write_to_file(transactions)
       else
         say "Transactions for: #{account.description} (#{account.iban})", :cyan
 
@@ -88,27 +88,14 @@ module BankScrap
       raise ArgumentError.new('Invalid bank name')
     end
 
-    def export_to_file(transactions)
-      current_date = Date.today.strftime('%d%m%Y')
-
-      case @extra_args['format'].downcase
-      when 'csv'
-        say "Storing transactions on #{output_path}/transactions_#{current_date}.csv"
-
-        CSV.open("#{output_path}/transactions_#{current_date}.csv", "wb") do |csv|
-          csv << ["Date", "Description", "Amount"]
-          transactions.each do |transaction|
-            csv << transaction.to_a
-          end
-        end
-      else
-        say "Sorry, file format not supported.", :red
-        exit
+    def get_exporter
+      case @extra_args['export_to'].downcase
+        when 'csv' then BankScrap::Exporter::Csv.new
+        else
+          say "Sorry, file format not supported.", :red
+          exit
       end
     end
 
-    def output_path
-      Dir.pwd
-    end
   end
 end
