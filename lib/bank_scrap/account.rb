@@ -6,8 +6,10 @@ module BankScrap
                   :available_balance, :description,
                   :transactions, :iban, :bic
 
+    alias number id
+
     def initialize(params = {})
-      params.each { |key, value| send "#{key}=", value }
+      params.each { |key, value| public_send "#{key}=", value }
     end
 
     def transactions

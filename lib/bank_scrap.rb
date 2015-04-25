@@ -7,11 +7,16 @@ require 'bank_scrap/cli'
 require 'bank_scrap/bank'
 require 'bank_scrap/account'
 require 'bank_scrap/transaction'
+require 'bank_scrap/utils'
 
 module BankScrap
   # autoload only requires the file when the specified
   # constant is used for the first time
-  autoload :Bankinter, 'bank_scrap/banks/bankinter'
-  autoload :Bbva,      'bank_scrap/banks/bbva'
-  autoload :Ing,       'bank_scrap/banks/ing'
+  autoload :Bankinter,    'bank_scrap/banks/bankinter'
+  autoload :Bbva,         'bank_scrap/banks/bbva'
+  autoload :Ing,          'bank_scrap/banks/ing'
+  autoload :BancSabadell, 'bank_scrap/banks/banc_sabadell'
+
+  autoload :HttpClient, 'bank_scrap/http_client'
+  autoload :NetHttpClient, 'bank_scrap/net_http_client'
 end

@@ -13,11 +13,11 @@ module BankScrap
     # Interface method placeholders
 
     def fetch_accounts
-      fail "#{self.class} should implement a fetch_account method"
+      fail "#{self.class} should implement a #{__method__} method"
     end
 
     def fetch_transactions_for(*)
-      fail "#{self.class} should implement a fetch_transactions method"
+      fail "#{self.class} should implement a #{__method__} method"
     end
 
     def account_with_iban(iban)
