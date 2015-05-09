@@ -1,8 +1,10 @@
-require 'bank_scrap'
+require 'json'
+require 'bank_scrap/core'
 
 module BankScrap
   class BancSabadell
-    InvalidCredentialsError = Class.new(StandardError)
+    class InvalidCredentialsError < StandardError; end
+    class InvalidResponseError < StandardError; end
 
     API_URL = URI('https://www.bancsabadell.mobi/bsmobil/api/').freeze
 
@@ -35,7 +37,7 @@ module BankScrap
     }.freeze
 
     def initialize(nie, pin, **options)
-      @http_client = BankScrap::NetHttpClient.new(API_URL)
+      @http_client = BankScrap.http_client.new(API_URL)
       @http_client.response_class = HttpResponse
 
       @http_client.headers.merge!(
@@ -51,7 +53,7 @@ module BankScrap
 
     def login
       response = post('session', LOGIN_INFO.merge(userName: @nie.to_s, password: @pin.to_s))
-      @user = response.body.fetch('user')
+      @user = response.body.fetch('user') { fail InvalidResponseError, response }
 
       [response.session_id, Time.now + 60]
     end

@@ -2,6 +2,7 @@ module BankScrap
   class HttpClient
 
     module AbstractHttpClient
+      class NotImplementedError < StandardError; end
       attr_accessor :response_class, :headers
 
       def initialize(base_url)
@@ -21,7 +22,7 @@ module BankScrap
       private
 
       def request(method, path, options = {})
-
+        fail NotImplementedError, "#{self.class} should implement a #{__method__} method"
       end
 
       class HttpResponse < Struct.new(:status, :headers, :body)
@@ -29,6 +30,5 @@ module BankScrap
     end
 
     include AbstractHttpClient
-
   end
 end

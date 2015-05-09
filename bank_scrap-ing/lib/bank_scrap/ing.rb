@@ -3,8 +3,12 @@ require 'base64'
 require 'RMagick'
 require 'tempfile'
 
+require 'bank_scrap/mechanize'
+
+require 'money'
+
 module BankScrap
-  class Ing < Bank
+  class Ing < Mechanize
     BASE_ENDPOINT = 'https://ing.ingdirect.es/'
     LOGIN_ENDPOINT     = BASE_ENDPOINT + 'genoma_login/rest/session'
     POST_AUTH_ENDPOINT = BASE_ENDPOINT + 'genoma_api/login/auth/response'
@@ -44,8 +48,8 @@ module BankScrap
     def fetch_accounts
       log 'fetch_accounts'
       set_headers(
-        'Accept'       => '*/*',
-        'Content-Type' => 'application/json; charset=utf-8'
+          'Accept'       => '*/*',
+          'Content-Type' => 'application/json; charset=utf-8'
       )
 
       @raw_accounts_data = JSON.parse(get(PRODUCTS_ENDPOINT))
@@ -61,10 +65,10 @@ module BankScrap
       # The API allows any limit to be passed, but we better keep
       # being good API citizens and make a loop with a short limit
       params = {
-        fromDate: start_date.strftime('%d/%m/%Y'),
-        toDate: end_date.strftime('%d/%m/%Y'),
-        limit: 25,
-        offset: 0
+          fromDate: start_date.strftime('%d/%m/%Y'),
+          toDate: end_date.strftime('%d/%m/%Y'),
+          limit: 25,
+          offset: 0
       }
 
       transactions = []
@@ -90,18 +94,18 @@ module BankScrap
 
     def login
       set_headers(
-        'Accept'       => 'application/json, text/javascript, */*; q=0.01',
-        'Content-Type' => 'application/json; charset=utf-8'
+          'Accept'       => 'application/json, text/javascript, */*; q=0.01',
+          'Content-Type' => 'application/json; charset=utf-8'
       )
 
       params = {
-        loginDocument: {
-          documentType: 0,
-          document: @dni.to_s
-        },
-        birthday: @birthday.to_s,
-        companyDocument: nil,
-        device: 'desktop'
+          loginDocument: {
+              documentType: 0,
+              document: @dni.to_s
+          },
+          birthday: @birthday.to_s,
+          companyDocument: nil,
+          device: 'desktop'
       }
 
       response = JSON.parse(post(LOGIN_ENDPOINT, params.to_json))
@@ -118,8 +122,8 @@ module BankScrap
 
     def post_auth(ticket)
       set_headers(
-        'Accept'       => 'application/json, text/javascript, */*; q=0.01',
-        'Content-Type' => 'application/x-www-form-urlencoded; charset=UTF-8'
+          'Accept'       => 'application/json, text/javascript, */*; q=0.01',
+          'Content-Type' => 'application/x-www-form-urlencoded; charset=UTF-8'
       )
 
       params = "ticket=#{ticket}&device=desktop"
@@ -153,7 +157,7 @@ module BankScrap
     end
 
     def sample_number_path(number)
-      File.join(File.dirname(__FILE__), "#{SAMPLE_ROOT_PATH}/#{number}.png")
+      File.join(__dir__, "#{SAMPLE_ROOT_PATH}/#{number}.png")
     end
 
     def images_diff(sample_number_img, current_number_img)
@@ -182,24 +186,24 @@ module BankScrap
       third_digit  = @password[positions[2] - 1]
 
       [
-        pinpad_numbers.index(first_digit.to_i),
-        pinpad_numbers.index(second_digit.to_i),
-        pinpad_numbers.index(third_digit.to_i)
+          pinpad_numbers.index(first_digit.to_i),
+          pinpad_numbers.index(second_digit.to_i),
+          pinpad_numbers.index(third_digit.to_i)
       ]
     end
 
     # Build an Account object from API data
     def build_account(data)
       Account.new(
-        bank: self,
-        id: data['uuid'],
-        name: data['name'],
-        balance: data['balance'],
-        currency: 'EUR',
-        available_balance: data['availableBalance'],
-        description: (data['alias'] || data['name']),
-        iban: data['iban'],
-        bic: data['bic']
+          bank: self,
+          id: data['uuid'],
+          name: data['name'],
+          balance: data['balance'],
+          currency: 'EUR',
+          available_balance: data['availableBalance'],
+          description: (data['alias'] || data['name']),
+          iban: data['iban'],
+          bic: data['bic']
       )
     end
 
@@ -207,13 +211,13 @@ module BankScrap
     def build_transaction(data, account)
       amount = Money.new(data['amount'] * 100, data['currency'])
       Transaction.new(
-        account: account,
-        id: data['uuid'],
-        amount: amount,
-        currency: data['EUR'],
-        effective_date: Date.strptime(data['effectiveDate'], "%d/%m/%Y"),
-        description: data['description'],
-        balance: data['balance']
+          account: account,
+          id: data['uuid'],
+          amount: amount,
+          currency: data['EUR'],
+          effective_date: Date.strptime(data['effectiveDate'], "%d/%m/%Y"),
+          description: data['description'],
+          balance: data['balance']
       )
     end
   end

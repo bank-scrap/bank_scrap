@@ -1,11 +1,10 @@
 # coding: utf-8
-lib = File.expand_path('bank_scrap-core/lib', __dir__)
+lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-
 require 'bank_scrap/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = 'bank_scrap'
+  spec.name          = 'bank_scrap-cli'
   spec.version       = BankScrap::VERSION
   spec.authors       = [
     'Ismael Sánchez',
@@ -34,9 +33,8 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'webmock', '~> 1.20'
   spec.add_development_dependency 'yard'
 
-  spec.add_dependency 'bank_scrap-cli', '~> 0.1'
-  spec.add_dependency 'bank_scrap-ing', '~> 0.1'
-  spec.add_dependency 'bank_scrap-bankinter', '~> 0.1'
-  spec.add_dependency 'bank_scrap-bbva', '~> 0.1'
-  spec.add_dependency 'bank_scrap-banc_sabadell', '~> 0.1'
+  spec.add_dependency 'bank_scrap-core', '~> 0.1'
+  spec.add_dependency 'thor',          '~> 0.19'
+  spec.add_dependency 'activesupport', '~> 4.1'
+  spec.add_dependency 'money',         '~> 6.5.0'
 end

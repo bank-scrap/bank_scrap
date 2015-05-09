@@ -1,3 +1,5 @@
+require 'bank_scrap/utils/inspectable'
+
 module BankScrap
   class Transaction
     include Utils::Inspectable

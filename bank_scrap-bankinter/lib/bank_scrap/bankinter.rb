@@ -1,8 +1,11 @@
 require 'nokogiri'
 require 'execjs'
 
+require 'bank_scrap/mechanize'
+require 'money'
+
 module BankScrap
-  class Bankinter < Bank
+  class Bankinter < Mechanize
     BASE_ENDPOINT = "https://www.bankinter.com"
     LOGIN_ENDPOINT = "/www/es-es/cgi/ebk+login"
     TRANSACTIONS_ENDPOINT = "/www/es-es/cgi/ebk+opr+buscadormov"
@@ -45,24 +48,24 @@ module BankScrap
       transactions = []
 
       fields = {
-        'ext-solapa' => 'operar',
-        'ext-subsolapa' => 'mis_cuentas',
-        'ordenDesc' => '',
-        'ordenFechaC' => 'A',
-        'ordenFechaV' => '',
-        'ordenGasto' => '',
-        'ordenIng' => '',
-        'buscador' => 'S',
-        'tipoConsulta' => 'N',
-        'seleccionado_tipo' => '',
-        'cuenta_seleccionada' => account.iban,
-        'tipoMov' => 'A',
-        'dia' => start_date.strftime("%d"),
-        'mes' => start_date.strftime("%m"),
-        'anio' => start_date.strftime("%Y"),
-        'diaH' => end_date.strftime("%d"),
-        'mesH' => end_date.strftime("%m"),
-        'anioH' => end_date.strftime("%Y"),
+          'ext-solapa' => 'operar',
+          'ext-subsolapa' => 'mis_cuentas',
+          'ordenDesc' => '',
+          'ordenFechaC' => 'A',
+          'ordenFechaV' => '',
+          'ordenGasto' => '',
+          'ordenIng' => '',
+          'buscador' => 'S',
+          'tipoConsulta' => 'N',
+          'seleccionado_tipo' => '',
+          'cuenta_seleccionada' => account.iban,
+          'tipoMov' => 'A',
+          'dia' => start_date.strftime("%d"),
+          'mes' => start_date.strftime("%m"),
+          'anio' => start_date.strftime("%Y"),
+          'diaH' => end_date.strftime("%d"),
+          'mesH' => end_date.strftime("%m"),
+          'anioH' => end_date.strftime("%Y"),
       }
 
       response = post(BASE_ENDPOINT + TRANSACTIONS_ENDPOINT, fields)
@@ -87,10 +90,10 @@ module BankScrap
 
     def login
       fields = {
-        'bkcache' => '',
-        'destino' => 'ebk+opr+extractointegral',
-        @id_field => 'username,password,psi',
-        @login_field => @login_param
+          'bkcache' => '',
+          'destino' => 'ebk+opr+extractointegral',
+          @id_field => 'username,password,psi',
+          @login_field => @login_param
       }
 
       response = post(BASE_ENDPOINT + LOGIN_ENDPOINT, fields)
@@ -125,28 +128,28 @@ module BankScrap
 
     def build_account(data)
       Account.new(
-        bank: self,
-        id: data['id'],
-        balance: data['availableBalance'],
-        currency: data['currency'],
-        description: data['description'],
-        iban: data['iban']
-      )  
+          bank: self,
+          id: data['id'],
+          balance: data['availableBalance'],
+          currency: data['currency'],
+          description: data['description'],
+          iban: data['iban']
+      )
     end
 
     def build_transaction(data, account)
-      amount = Money.new(data['amount'], data['currency'])
-      balance = data['accountBalanceAfterMovement'] ? Money.new(data['accountBalanceAfterMovement'] * 100, data['currency']) : nil
+      amount = ::Money.new(data['amount'], data['currency'])
+      balance = data['accountBalanceAfterMovement'] ? ::Money.new(data['accountBalanceAfterMovement'] * 100, data['currency']) : nil
 
       Transaction.new(
-        account: account,
-        id: data['id'],
-        amount: amount,
-        description: data['conceptDescription'] || data['description'],
-        effective_date: Date.strptime(data['operationDate'], "%d-%m-%Y"),
-        currency: data['currency'],
-        balance: balance
+          account: account,
+          id: data['id'],
+          amount: amount,
+          description: data['conceptDescription'] || data['description'],
+          effective_date: Date.strptime(data['operationDate'], "%d-%m-%Y"),
+          currency: data['currency'],
+          balance: balance
       )
-    end 
+    end
   end
 end

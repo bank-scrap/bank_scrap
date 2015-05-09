@@ -15,7 +15,7 @@ module BankScrap
     def initialize_net_http(uri)
       @http = Net::HTTP.new(uri.host, uri.port)
       @http.use_ssl = uri.is_a?(URI::HTTPS)
-      @http.set_debug_output $stdout
+      @http.set_debug_output $stdout if ENV['DEBUG']
     end
 
     def request(method, path, options = {})

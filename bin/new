@@ -1,0 +1,90 @@
+#!/usr/bin/env ruby
+
+require 'thor'
+require 'active_support/core_ext/string/inflections'
+
+module New
+    class Bank < Thor::Group
+      include Thor::Actions
+      argument :name, required: true
+
+      def create_directory
+        empty_directory gem_name
+      end
+
+      def create_gemspec
+        create_file "#{gem_name}/#{gem_name}.gemspec" do
+          <<-TEMPLATE
+# coding: utf-8
+
+require_relative '../bank_scrap-base'
+
+BankScrap::Specification.new do |spec|
+  spec.name          = '#{gem_name}'
+
+  spec.authors       = ['Your Name']
+  spec.email         = ['email@example.com']
+  spec.summary       = %q{BankScrap #{name} integration.}
+  spec.description   = %q{#{name} integration using internal mobile API.}
+
+  spec.files         = Dir['lib/bank_scrap/#{module_name}{.rb,**/.rb}']
+
+  spec.add_dependency 'bank_scrap-core', '~> 0.1'
+  spec.add_dependency 'bank_scrap-mechanize', '~> 0.1'
+end
+
+TEMPLATE
+        end
+      end
+
+
+      def create_bank
+        create_file "#{gem_name}/lib/bank_scrap/#{module_name}.rb" do
+<<-TEMPLATE
+module BankScrap
+  module #{name.camelize}
+  end
+end
+TEMPLATE
+        end
+      end
+
+      def create_dot_rspec
+        inside gem_name do
+          create_file '.rspec' do
+<<-TEMPLATE
+--require spec_helper
+--require
+TEMPLATE
+
+          end
+        end
+      end
+
+      def create_spec_helper
+        inside gem_name do
+          create_file 'spec/spec_helper.rb' do
+<<-TEMPLATE
+require 'bank_scrap/#{module_name}'
+TEMPLATE
+          end
+        end
+      end
+
+      protected
+
+      def module_name
+        name.downcase
+      end
+
+      def gem_name
+        "bank_scrap-#{module_name}"
+      end
+    end
+
+  class CLI < Thor
+    register(Bank, "bank", "bank NAME", "Creates new bank gem")
+  end
+end
+
+New::CLI.start(ARGV, destination_root: File.expand_path('..', __dir__))

@@ -2,7 +2,8 @@ require 'mechanize'
 require 'logger'
 
 module BankScrap
-  class Bank
+  class Mechanize
+
     WEB_USER_AGENT = 'Mozilla/5.0 (Linux; Android 4.2.1; en-us; Nexus 4 Build/JOP40D) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.166 Mobile Safari/535.19'
     attr_accessor :headers, :accounts
 
@@ -27,6 +28,10 @@ module BankScrap
     end
 
     private
+
+    def set_headers(*)
+      raise 'not implemented'
+    end
 
     def get(url, params = {})
       @http.get(url, params).body
@@ -60,10 +65,10 @@ module BankScrap
     end
 
     def initialize_connection
-      @http = Mechanize.new do |mechanize|
+      @http = ::Mechanize.new do |mechanize|
         mechanize.user_agent = WEB_USER_AGENT
-        mechanize.agent.http.verify_mode = OpenSSL::SSL::VERIFY_NONE
-        mechanize.log = Logger.new(STDOUT) if @debug
+        mechanize.agent.http.verify_mode = ::OpenSSL::SSL::VERIFY_NONE
+        mechanize.log = ::Logger.new(STDOUT) if @debug
         # mechanize.set_proxy 'localhost', 8888
       end
 

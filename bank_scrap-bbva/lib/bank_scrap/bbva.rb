@@ -1,7 +1,9 @@
 require 'json'
+require 'money'
+require 'bank_scrap/mechanize'
 
 module BankScrap
-  class Bbva < Bank
+  class Bbva < Mechanize
     BASE_ENDPOINT     = 'https://bancamovil.grupobbva.com'
     LOGIN_ENDPOINT    = '/DFAUTH/slod/DFServletXML'
     PRODUCTS_ENDPOINT = '/ENPP/enpp_mult_web_mobility_02/products/v1'
@@ -18,15 +20,15 @@ module BankScrap
       initialize_connection
 
       add_headers(
-        'User-Agent'       => USER_AGENT,
-        'BBVA-User-Agent'  => USER_AGENT,
-        'Accept-Language'  => 'spa',
-        'Content-Language' => 'spa',
-        'Accept'           => 'application/json',
-        'Accept-Charset'   => 'UTF-8',
-        'Connection'       => 'Keep-Alive',
-        'Host'             => 'bancamovil.grupobbva.com',
-        'Cookie2'          => '$Version=1'
+          'User-Agent'       => USER_AGENT,
+          'BBVA-User-Agent'  => USER_AGENT,
+          'Accept-Language'  => 'spa',
+          'Content-Language' => 'spa',
+          'Accept'           => 'application/json',
+          'Accept-Charset'   => 'UTF-8',
+          'Connection'       => 'Keep-Alive',
+          'Host'             => 'bancamovil.grupobbva.com',
+          'Cookie2'          => '$Version=1'
       )
 
       login
@@ -45,6 +47,7 @@ module BankScrap
         post(BASE_ENDPOINT + PRODUCTS_ENDPOINT, {})
       end
 
+      # FIXME: raises  unexpected token at '<logon/> (JSON::ParserError)
       json = JSON.parse(response)
       json['accounts'].map { |data| build_account(data) }
     end
@@ -61,14 +64,14 @@ module BankScrap
 
       # Misteriously we need a specific content-type here
       funny_headers = {
-        'Content-Type' => 'application/json; charset=UTF-8',
-        'BBVA-Method' => 'GET'
+          'Content-Type' => 'application/json; charset=UTF-8',
+          'BBVA-Method' => 'GET'
       }
 
       url = BASE_ENDPOINT +
-            ACCOUNT_ENDPOINT +
-            account.id +
-            "/movements/v1?fromDate=#{from_date}&toDate=#{to_date}"
+          ACCOUNT_ENDPOINT +
+          account.id +
+          "/movements/v1?fromDate=#{from_date}&toDate=#{to_date}"
       offset = nil
       transactions = []
 
@@ -112,11 +115,11 @@ module BankScrap
     def login
       log 'login'
       params = {
-        'origen'         => 'enpp',
-        'eai_tipoCP'     => 'up',
-        'eai_user'       => @user,
-        'eai_password'   => @password,
-        'eai_URLDestino' => '/ENPP/enpp_mult_web_mobility_02/sessions/v1'
+          'origen'         => 'enpp',
+          'eai_tipoCP'     => 'up',
+          'eai_user'       => @user,
+          'eai_password'   => @password,
+          'eai_URLDestino' => '/ENPP/enpp_mult_web_mobility_02/sessions/v1'
       }
       post(BASE_ENDPOINT + LOGIN_ENDPOINT, params)
     end
@@ -124,37 +127,37 @@ module BankScrap
     # Build an Account object from API data
     def build_account(data)
       Account.new(
-        bank: self,
-        id: data['id'],
-        name: data['name'],
-        available_balance: data['availableBalance'],
-        balance: data['availableBalance'],
-        currency: data['currency'],
-        iban: data['iban'],
-        description: "#{data['typeDescription']} #{data['familyCode']}"
+          bank: self,
+          id: data['id'],
+          name: data['name'],
+          available_balance: data['availableBalance'],
+          balance: data['availableBalance'],
+          currency: data['currency'],
+          iban: data['iban'],
+          description: "#{data['typeDescription']} #{data['familyCode']}"
       )
     end
 
     # Build a transaction object from API data
     def build_transaction(data, account)
       Transaction.new(
-        account: account,
-        id: data['id'],
-        amount: transaction_amount(data),
-        description: data['conceptDescription'] || data['description'],
-        effective_date: Date.strptime(data['operationDate'], '%Y-%m-%d'),
-        currency: data['currency'],
-        balance: transaction_balance(data)
+          account: account,
+          id: data['id'],
+          amount: transaction_amount(data),
+          description: data['conceptDescription'] || data['description'],
+          effective_date: Date.strptime(data['operationDate'], '%Y-%m-%d'),
+          currency: data['currency'],
+          balance: transaction_balance(data)
       )
     end
 
     def transaction_amount(data)
-      Money.new(data['amount'] * 100, data['currency'])
+      ::Money.new(data['amount'] * 100, data['currency'])
     end
 
     def transaction_balance(data)
       return unless data['accountBalanceAfterMovement']
-      Money.new(data['accountBalanceAfterMovement'] * 100, data['currency'])
+      ::Money.new(data['accountBalanceAfterMovement'] * 100, data['currency'])
     end
   end
 end
