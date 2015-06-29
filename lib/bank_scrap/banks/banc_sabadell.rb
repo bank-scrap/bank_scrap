@@ -66,7 +66,8 @@ module BankScrap
     # @param end_date [Date]
     # @return Array<Transaction>
     def fetch_transactions_for(account, start_date: Date.today - 1.month, end_date: Date.today)
-      build_transaction = method(:build_transaction).curry.call(account)
+      # Method#curry is available on Ruby >= 2.2
+      build_transaction = method(:build_transaction).to_proc.curry.call(account)
 
       response = post('accounts/movements',
                       {
