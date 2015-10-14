@@ -14,6 +14,10 @@ module BankScrap
       "#{effective_date.strftime('%d/%m/%Y')}   #{description.ljust(45)} #{amount.format.rjust(20)}"
     end
 
+    def to_a
+      [effective_date.strftime("%d/%m/%Y"), description, amount]
+    end
+
     private
 
     def inspect_attributes
@@ -25,4 +29,3 @@ module BankScrap
     end
   end
 end
-

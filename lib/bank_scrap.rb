@@ -8,6 +8,7 @@ require 'bank_scrap/bank'
 require 'bank_scrap/account'
 require 'bank_scrap/investment'
 require 'bank_scrap/transaction'
+require 'bank_scrap/exporters/csv'
 
 module BankScrap
   # autoload only requires the file when the specified

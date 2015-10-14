@@ -54,14 +54,19 @@ module BankScrap
         transactions = account.transactions
       end
 
-      say "Transactions for: #{account.description} (#{account.iban})", :cyan
+      if (@extra_args.has_key?('export_to'))
+        exporter = get_exporter
+        exporter.write_to_file(transactions)
+      else
+        say "Transactions for: #{account.description} (#{account.iban})", :cyan
 
-      transactions.each do |transaction|
-        say transaction.to_s, (transaction.amount > Money.new(0) ? :green : :red)
+        transactions.each do |transaction|
+          say transaction.to_s, (transaction.amount > Money.new(0) ? :green : :red)
+        end
       end
     end
 
-    private
+    private 
 
     def assign_shared_options
       @user       = options[:user]
@@ -80,6 +85,15 @@ module BankScrap
       Object.const_get('BankScrap::' + bank_name.classify)
     rescue NameError
       raise ArgumentError.new('Invalid bank name')
+    end
+
+    def get_exporter
+      case @extra_args['export_to'].downcase
+        when 'csv' then BankScrap::Exporter::Csv.new
+        else
+          say "Sorry, file format not supported.", :red
+          exit
+      end
     end
   end
 end
