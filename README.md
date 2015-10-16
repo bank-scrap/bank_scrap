@@ -8,10 +8,10 @@ Feel free to contribute and add your bank if it isn't supported.
 
 ## Supported banks
 
-|                 |  BBVA  | ING Direct | Bankinter |
-|-----------------|:------:|:----------:|:---------:|
-| Account Balance |    ✓   |      ✓     |     ✓     |
-|  Transactions   |    ✓   |      ✓     |     ✓     |
+|                 |  BBVA  | ING Direct | Bankinter | Openbank | Santander |
+|-----------------|:------:|:----------:|:---------:|:--------:|:---------:|
+| Account Balance |    ✓   |      ✓     |     ✓     |     ✓    |     ✓     |
+|  Transactions   |    ✓   |      ✓     |     ✓     |     ✓    |     ✓     |
 
 Interested in any other bank? Open a new Issue and we'll try to help.
  
@@ -54,7 +54,7 @@ Or, if you're using Bundler, just add the following to your Gemfile:
 ### From terminal
 #### Bank account balance
 
-###### BBVA | Bankinter
+###### BBVA | Bankinter | Openbank | Santander
 
     $ bank_scrap balance your_bank --user YOUR_BANK_USER --password YOUR_BANK_PASSWORD
 
@@ -73,6 +73,10 @@ Replace 01/01/1980 with your actual birthday.
 ###### ING Direct
 
     $ bank_scrap transactions ing --user YOUR_DNI --password YOUR_PASSWORD --extra=birthday:01/01/1980
+
+###### Openbank | Santander
+
+    $ bank_scrap transactions your_bank --user YOUR_BANK_USER --password YOUR_BANK_PASSWORD
 
 #### Transactions with date range
 

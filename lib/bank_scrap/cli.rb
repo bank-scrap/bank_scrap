@@ -31,8 +31,8 @@ module BankScrap
     shared_options
     def transactions(bank, iban = nil)
       assign_shared_options
-    
-      begin 
+
+      begin
         start_date = @extra_args.has_key?('from') ? Date.strptime(@extra_args['from'],'%d-%m-%Y') : nil
         end_date = @extra_args.has_key?('to') ? Date.strptime(@extra_args['to'],'%d-%m-%Y') : nil
       rescue ArgumentError
@@ -77,7 +77,7 @@ module BankScrap
     end
 
     def find_bank_class_for(bank_name)
-      Object.const_get('BankScrap::' + bank_name.classify)
+      Object.const_get("BankScrap::#{bank_name}".classify)
     rescue NameError
       raise ArgumentError.new('Invalid bank name')
     end

@@ -7,7 +7,7 @@ module BankScrap
     attr_accessor :headers, :accounts, :investments
 
     def initialize(user, password, log: false, debug: false, extra_args: nil)
-      @accounts    = fetch_accounts
+      @accounts = fetch_accounts
     end
 
     # Interface method placeholders

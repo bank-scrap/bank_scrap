@@ -15,4 +15,6 @@ module BankScrap
   autoload :Bankinter, 'bank_scrap/banks/bankinter'
   autoload :Bbva,      'bank_scrap/banks/bbva'
   autoload :Ing,       'bank_scrap/banks/ing'
+  autoload :Openbank,  'bank_scrap/banks/openbank'
+  autoload :Santander, 'bank_scrap/banks/santander'
 end
