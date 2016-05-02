@@ -18,12 +18,12 @@ module Bankscrap
       say "To get started take a look to:", :yellow
       say "#{destination_root}/#{gem_name}.rb", :yellow
       say ""
-      say "If you need help you join our Slack chat room. Click the Slack badge on Github:", :yellow
+      say "If you need help you can join our Slack chat room. Click the Slack badge on Github:", :yellow
       say "https://github.com/bankscrap/bankscrap", :yellow
     end
 
     protected
-    
+
     def bank_name_dasherized
       @bank_name_dasherized ||= bank_name.underscore.dasherize
     end
