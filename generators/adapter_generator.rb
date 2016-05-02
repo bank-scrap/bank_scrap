@@ -9,7 +9,6 @@ module Bankscrap
     end
 
     def generate
-      empty_directory(gem_name)
       self.destination_root = File.expand_path('.', gem_name)
 
       directory '.'
