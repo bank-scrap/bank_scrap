@@ -56,11 +56,13 @@ module Bankscrap
         transactions = account.transactions
       end
 
-      export_to_file(transactions, options[:format], options[:output]) if options[:format]
-
-      say "Transactions for: #{account.description} (#{account.iban})", :cyan
-      print_transactions_header
-      transactions.each { |t| print_transaction(t) }
+      if options[:format]
+        export_to_file(account, transactions, options[:format], options[:output])
+      else
+        say "Transactions for: #{account.description} (#{account.iban})", :cyan
+        print_transactions_header
+        transactions.each { |t| print_transaction(t) }
+      end
     end
 
     register(Bankscrap::AdapterGenerator, 'generate_adapter', 'generate_adapter MyBankName',
@@ -98,18 +100,22 @@ module Bankscrap
       exit
     end
 
-    def export_to_file(data, format, path)
-      exporter(format, path).write_to_file(data)
+    def export_to_file(account, data, format, path)
+      exporter(account, format, path).write_to_file(data)
     end
 
-    def exporter(format, path)
+    def exporter(account, format, path)
       case format.downcase
-      when 'csv' then BankScrap::Exporter::Csv.new(path)
-      when 'json' then BankScrap::Exporter::Json.new(path)
+      when 'csv'
+        exporter = BankScrap::Exporter::Csv
+      when 'json'
+        exporter = BankScrap::Exporter::Json
       else
         say 'Sorry, file format not supported.', :red
         exit
       end
+      say "Transactions for: #{account.description} (#{account.iban}) exported to #{exporter.get_filename(path)}", :cyan
+      exporter.new(path)
     end
 
     def print_transactions_header

@@ -5,7 +5,11 @@ module BankScrap
     # Json exporter
     class Json
       def initialize(output = nil)
-        @output = output || 'transactions.json'
+        @output = Json.get_filename(output)
+      end
+
+      def self.get_filename(output)
+        output || 'transactions.json'
       end
 
       def write_to_file(data)
