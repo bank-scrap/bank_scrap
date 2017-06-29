@@ -105,6 +105,7 @@ module Bankscrap
     def exporter(format, path)
       case format.downcase
       when 'csv' then BankScrap::Exporter::Csv.new(path)
+      when 'json' then BankScrap::Exporter::Json.new(path)
       else
         say 'Sorry, file format not supported.', :red
         exit

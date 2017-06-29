@@ -11,6 +11,7 @@ require_relative 'bankscrap/account'
 require_relative 'bankscrap/investment'
 require_relative 'bankscrap/transaction'
 require_relative 'bankscrap/exporters/csv'
+require_relative 'bankscrap/exporters/json'
 
 module Bankscrap
   class << self
