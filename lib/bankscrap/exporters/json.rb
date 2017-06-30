@@ -4,8 +4,9 @@ module BankScrap
   module Exporter
     # Json exporter
     class Json
-      def initialize(output = nil)
+      def initialize(output = nil, account)
         @output = Json.get_filename(output)
+        @account = account
       end
 
       def self.get_filename(output)
@@ -19,8 +20,9 @@ module BankScrap
           hash = { date: array[0], description: array[1], amount: array[2] }
           json_array << hash
         end
+        json_hash = { account: { description: @account.description, iban: @account.iban }, transactions: json_array }
         File.open(@output, 'w') do |f|
-          f.write(json_array.to_json)
+            f.write(json_hash.to_json)
         end
       end
     end

@@ -6,8 +6,9 @@ module BankScrap
     class Csv
       HEADERS = %w(ID Date Description DescriptionDetail Amount).freeze
 
-      def initialize(output = nil)
+      def initialize(output = nil, account)
         @output = Csv.get_filename(output)
+        @account = account
       end
 
       def self.get_filename(output)

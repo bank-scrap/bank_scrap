@@ -115,7 +115,7 @@ module Bankscrap
         exit
       end
       say "Transactions for: #{account.description} (#{account.iban}) exported to #{exporter.get_filename(path)}", :cyan
-      exporter.new(path)
+      exporter.new(path, account)
     end
 
     def print_transactions_header
