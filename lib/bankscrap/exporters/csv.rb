@@ -15,6 +15,10 @@ module BankScrap
             return 'transactions.json'
           elsif check_array_class(data, Bankscrap::Account)
             return 'accounts.json'
+          elsif check_array_class(data, Bankscrap::Loan)
+            return 'loans.json'
+          elsif check_array_class(data, Bankscrap::Card)
+            return 'cards.json'
           end
         else
           if output == '-'
@@ -40,6 +44,18 @@ module BankScrap
         elsif check_array_class(data, Bankscrap::Account)
           CSV.open(output, 'wb') do |csv|
             csv << %w(Id Iban Name Description Bank Balance)
+            data.each { |line| csv << line.to_a }
+          end
+          STDERR.puts "Accounts exported to #{output}".cyan
+        elsif check_array_class(data, Bankscrap::Loan)
+          CSV.open(output, 'wb') do |csv|
+            csv << %w(Id Name Description Amount)
+            data.each { |line| csv << line.to_a }
+          end
+          STDERR.puts "Accounts exported to #{output}".cyan
+        elsif check_array_class(data, Bankscrap::Card)
+          CSV.open(output, 'wb') do |csv|
+            csv << %w(Id Name Description Pan Amount Avaliable Is_credit)
             data.each { |line| csv << line.to_a }
           end
           STDERR.puts "Accounts exported to #{output}".cyan

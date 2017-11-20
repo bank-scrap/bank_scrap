@@ -17,7 +17,7 @@ module Bankscrap
       option :output
     end
 
-    desc 'balance BankName', "get accounts' balance"
+    desc 'balance BankName', "get account's balance"
     shared_options
     def balance(bank)
       assign_shared_options
@@ -32,6 +32,36 @@ module Bankscrap
           if account.balance != account.available_balance
             STDERR.puts "Available: #{account.available_balance.format}".yellow
           end
+        end
+      end
+    end
+
+    desc 'cards BankName', "get account's credit cards"
+    shared_options
+    def cards(bank)
+      assign_shared_options
+      initialize_client_for(bank)
+
+      if options[:format]
+        export_to_file(nil, @client.cards, options[:format], options[:output])
+      else
+        @client.cards.each do |card|
+           STDERR.puts "Card: #{card.name} #{card.description} #{card.amount.format}".green
+        end
+      end
+    end
+
+    desc 'loans BankName', "get account's loans"
+    shared_options
+    def loans(bank)
+      assign_shared_options
+      initialize_client_for(bank)
+
+      if options[:format]
+        export_to_file(nil, @client.loans, options[:format], options[:output])
+      else
+        @client.loans.each do |loan|
+          STDERR.puts "Loan: #{loan.name} #{loan.description} #{loan.amount.format}".green
         end
       end
     end
